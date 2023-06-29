@@ -58,6 +58,12 @@ const Sidebar = () => {
       text: "Payments",
       sub: false,
     },
+    {
+      id: 10,
+      image: logo,
+      text: "Payments",
+      sub: false,
+    },
   ];
 
   const handleMouseEnter = () => {
