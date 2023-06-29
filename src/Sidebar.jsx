@@ -58,12 +58,6 @@ const Sidebar = () => {
       text: "Payments",
       sub: false,
     },
-    {
-      id: 10,
-      image: logo,
-      text: "Payments",
-      sub: false,
-    },
   ];
 
   const handleMouseEnter = () => {
@@ -108,7 +102,7 @@ const Sidebar = () => {
 
       <div className="p-2  border-t-2 border-gray-100">
         {items.map((item) => (
-          <div className="flex justify-between items-center hover:bg-blue-50 rounded-lg">
+          <div className="flex justify-between items-center hover:bg-blue-50 rounded-lg text-gray-600">
             <div
               key={item.id}
               className="flex items-center p-2 gap-2  hover:text-blue-500 text-xs  font-medium hover:font-bold   cursor-pointer"
@@ -124,7 +118,7 @@ const Sidebar = () => {
             </div>
             {item.sub && expanded ? (
               <div>
-                <img src={logo} alt="" className="h-5" />
+                <img src={logo} alt="" className="h-5 " />
               </div>
             ) : (
               <></>
