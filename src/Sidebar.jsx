@@ -46,6 +46,18 @@ const Sidebar = () => {
       text: "Interactions",
       sub: false,
     },
+    {
+      id: 8,
+      image: logo,
+      text: "Lead Changes",
+      sub: false,
+    },
+    {
+      id: 9,
+      image: logo,
+      text: "Payments",
+      sub: false,
+    },
   ];
 
   const handleMouseEnter = () => {
