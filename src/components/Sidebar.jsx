@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import logo from "./assets/react.svg";
+
+import logo from "../assets/react.svg";
 const Sidebar = () => {
   const [expanded, setExpanded] = useState(false);
 
@@ -58,12 +59,6 @@ const Sidebar = () => {
       text: "Payments",
       sub: false,
     },
-    {
-      id: 10,
-      image: logo,
-      text: "Payments",
-      sub: false,
-    },
   ];
 
   const handleMouseEnter = () => {
@@ -75,7 +70,13 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="border border-gray-200 w-fit h-screen shadow-md ">
+    <div
+      className={
+        expanded
+          ? "border border-gray-200  h-screen shadow-md z-10 relative bg-white w-fit"
+          : "border border-gray-200  h-screen shadow-md z-10 relative bg-white w-fit"
+      }
+    >
       {expanded ? (
         <div className="py-4 ">
           <div className="flex justify-center px-4">
@@ -83,7 +84,7 @@ const Sidebar = () => {
           </div>
           <div className="flex justify-end  ">
             <div
-              className=" bg-white shadow-lg w-fit border border-gray-200 p-1 my-2 cursor-pointer"
+              className=" bg-white shadow-lg w-fit border border-gray-200 p-1 my-2 cursor-pointer z-10 relative"
               onClick={() => setExpanded(false)}
             >
               <img src={logo} className="h-5" />
@@ -106,14 +107,16 @@ const Sidebar = () => {
         </div>
       )}
 
-      <div className="p-2  border-t-2 border-gray-100">
+      <div
+        className="p-2  border-t-2 border-gray-100 h-screen"
+        onMouseEnter={() => handleMouseEnter()}
+        onMouseLeave={handleMouseLeave}
+      >
         {items.map((item) => (
           <div className="flex justify-between items-center hover:bg-blue-50 rounded-lg text-gray-600">
             <div
               key={item.id}
               className="flex items-center p-2 gap-2  hover:text-blue-500 text-xs  font-medium hover:font-bold   cursor-pointer"
-              onMouseEnter={() => handleMouseEnter()}
-              onMouseLeave={handleMouseLeave}
             >
               <img
                 src={item.image}

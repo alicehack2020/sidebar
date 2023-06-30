@@ -1,12 +1,15 @@
-import React from 'react'
-import Sidebar from './Sidebar'
+import React from "react";
+import Sidebar from "./components/Sidebar";
+import LeadsTable from "./components/LeadsTable";
 
 const App = () => {
   return (
-    <div>
-      <Sidebar/>
-    </div>
-  )
-}
+    <div className="flex">
+      <Sidebar />
 
-export default App
+      <LeadsTable />
+    </div>
+  );
+};
+
+export default App;
