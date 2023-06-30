@@ -3,18 +3,27 @@ import logo from "../assets/react.svg";
 import { states } from "../data";
 
 const commonFilterData = [
-  { key: "currentStatus", value: "converted", common: false },
-  { key: "paymentStatus", value: "single", common: false },
-  { key: "assignedTo", value: "1", common: false },
-  { key: "documentStatus", value: "pending", common: false },
-  { key: "interactionStatus", value: "pending", common: false },
+  { key: "currentStatus", value: "converted", common: false, isSelect: false },
+  { key: "paymentStatus", value: "single", common: false, isSelect: false },
+  { key: "assignedTo", value: "1", common: false, isSelect: false },
+  { key: "documentStatus", value: "pending", common: false, isSelect: false },
+  {
+    key: "interactionStatus",
+    value: "pending",
+    common: false,
+    isSelect: false,
+  },
 ];
 
 const otherFilterData = [
   { key: "storeName", value: "" },
   { key: "status", value: "" },
-  { key: "", value: "" },
-  { key: "", value: "" },
+  { key: "state", value: "" },
+  { key: "district", value: "" },
+  { key: "referralStatus", value: "" },
+  { key: "zipCode", value: "" },
+  { key: "addedFromDate", value: "" },
+  { key: "addedToDate", value: "" },
 ];
 
 const LeadsTable = () => {
@@ -37,29 +46,29 @@ const LeadsTable = () => {
   const [storeNameValue, setstoreNameValue] = useState({
     key: "storeName",
     value: "",
-    other: true,
+    isSelect: false,
   });
   const [currentStatusValue, setCurrentStatusValue] = useState({
     key: "status",
     value: "",
-    other: true,
+    isSelect: false,
   });
   const [areaValue, setAreaValue] = useState({ key: "storeName", value: "" });
 
   const [referralStatusValue, setReferralStatusValue] = useState({
     key: "referal",
     value: "",
-    other: true,
+    isSelect: false,
   });
   const [zipCodeValue, setZipCodeValue] = useState({
     key: "zipcode",
     value: "",
-    other: true,
+    isSelect: false,
   });
   const [newAddedLeadValue, setNewAddedLeadValue] = useState({
     key: "newlead",
     value: "",
-    other: true,
+    isSelect: false,
   });
 
   //area
@@ -83,16 +92,33 @@ const LeadsTable = () => {
   };
 
   const selectHandler = (item) => {
+    console.log(item);
     let exit = selectedFilter.find((filter) => filter.key === item.key);
     if (!exit) {
-      setSelectedFilter((prev) => [...prev, item]);
-      setCommonFilter(
-        commonFilter.map((filter) =>
-          filter.key == item.key ? { ...filter, common: true } : filter
-        )
+      //find is item is present in commonFilter Data or not
+      if (commonFilterData.find((filter) => filter.key === item.key)) {
+        setSelectedFilter((prev) => [...prev, { ...item, isSelect: true }]);
+        setCommonFilter(
+          commonFilter.map((filter) =>
+            filter.key == item.key
+              ? { ...filter, common: true, isSelect: true }
+              : filter
+          )
+        );
+      } else {
+        setSelectedFilter((prev) => [
+          ...prev,
+          { ...item, isSelect: item.isSelect },
+        ]);
+      }
+    } else {
+      //other remove if again click
+      setSelectedFilter(
+        selectedFilter.filter((filter) => filter.key !== item.key)
       );
     }
   };
+  console.log(selectedFilter);
 
   const removeHandler = (item) => {
     setSelectedFilter(
@@ -101,7 +127,9 @@ const LeadsTable = () => {
     if (commonFilterData.find((filter) => filter.key === item.key)) {
       setCommonFilter(
         commonFilter.map((filter) =>
-          filter.key == item.key ? { ...filter, common: false } : filter
+          filter.key == item.key
+            ? { ...filter, common: false, isSelect: false }
+            : filter
         )
       );
     }
@@ -191,6 +219,14 @@ const LeadsTable = () => {
     }
   }, [newAddedLeadValue]);
 
+  // other filter handdler
+  //    const handleOtherFilterChange = (e) => {
+  //     let { name, value } = e.target;
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [name]: value,
+  //     }));
+  // }
   return (
     <div className="w-11/12 p-4 my-5 absolute left-20 h-screen flex gap-2">
       {/* filter code */}
@@ -218,21 +254,7 @@ const LeadsTable = () => {
             <div className="grid grid-cols-2 gap-1 py-4 px-2">
               {selectedFilter.map((item, index) => (
                 <>
-                  {item.other ? (
-                    <div
-                      className={
-                        item?.value
-                          ? "text-white bg-blue-400 rounded-md text-xs flex justify-between space-x-1 py-1.5 px-2 hover:cursor-pointer  flex-wrap"
-                          : "hidden"
-                      }
-                      onClick={() => removeHandler(item)}
-                    >
-                      <p className="break-words overflow-hidden">
-                        {item?.value}
-                      </p>
-                      <p>x</p>
-                    </div>
-                  ) : (
+                  {item.isSelect && (
                     <div
                       className="text-white bg-blue-400 rounded-md text-xs flex justify-between space-x-1 py-1.5 px-2 hover:cursor-pointer flex-wrap"
                       onClick={() => removeHandler(item)}
@@ -280,7 +302,22 @@ const LeadsTable = () => {
                       Store Name
                     </span>
                   </div>
-                  <div onClick={() => setStoreStatus(!storeStatus)}>
+                  <div
+                    onClick={() => {
+                      setStoreStatus(!storeStatus);
+
+                      setstoreNameValue({
+                        ...storeNameValue,
+                        isSelect: !storeNameValue.isSelect,
+                      });
+
+                      selectHandler({
+                        key: "storeName",
+                        value: "",
+                        isSelect: !storeStatus,
+                      });
+                    }}
+                  >
                     <img src={logo} className="h-4" alt="" />
                   </div>
                 </div>
