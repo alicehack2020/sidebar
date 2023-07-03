@@ -71,10 +71,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={
-        expanded
-          ? "border border-gray-200  h-screen shadow-md z-10 relative bg-white w-fit"
-          : "border border-gray-200  h-screen shadow-md z-10 relative bg-white w-fit"
+      className={"border border-gray-200 shadow-md z-10 relative bg-white w-fit"
       }
     >
       {expanded ? (
@@ -116,7 +113,7 @@ const Sidebar = () => {
           <div className="flex justify-between items-center hover:bg-blue-50 rounded-lg text-gray-600">
             <div
               key={item.id}
-              className="flex items-center p-2 gap-2  hover:text-blue-500 text-xs  font-medium hover:font-bold   cursor-pointer"
+              className="flex items-center p-2 gap-2  hover:text-blue-500 text-xs  font-medium  cursor-pointer"
             >
               <img
                 src={item.image}

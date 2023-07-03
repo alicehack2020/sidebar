@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/react.svg";
 import { states } from "../data";
+import Select from "react-select";
+
+const statusMultiOption = [
+  { value: "chocolate", label: "Chocolate" },
+  { value: "strawberry", label: "Strawberry" },
+  { value: "vanilla", label: "Vanilla" },
+];
 
 const commonFilterData = [
   { key: "currentStatus", value: "converted", common: false, isSelect: false },
@@ -24,13 +31,16 @@ const otherFilterData = [
   { key: "zipCode", value: "" },
   { key: "addedFromDate", value: "" },
   { key: "addedToDate", value: "" },
+  { key: "newlead", value: "" },
+  { key: "area", value: "" },
 ];
 
 const LeadsTable = () => {
   // manage all states here
-
   const [filterStatus, setFilterStatus] = useState(true);
+  //it will contain all selected data
   const [selectedFilter, setSelectedFilter] = useState([]);
+  //common filter options
   const [commonFilter, setCommonFilter] = useState(commonFilterData);
 
   //accordion status start
@@ -53,15 +63,15 @@ const LeadsTable = () => {
     value: "",
     isSelect: false,
   });
-  const [areaValue, setAreaValue] = useState({ key: "storeName", value: "" });
+  const [areaValue, setAreaValue] = useState({ key: "area", value: "" });
 
   const [referralStatusValue, setReferralStatusValue] = useState({
-    key: "referal",
+    key: "referralStatus",
     value: "",
     isSelect: false,
   });
   const [zipCodeValue, setZipCodeValue] = useState({
-    key: "zipcode",
+    key: "zipCode",
     value: "",
     isSelect: false,
   });
@@ -72,7 +82,6 @@ const LeadsTable = () => {
   });
 
   //area
-
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [districts, setDistricts] = useState([]);
@@ -80,6 +89,7 @@ const LeadsTable = () => {
   const handleStateChange = (event) => {
     const selectedState = event.target.value;
     setSelectedState(selectedState);
+
     setSelectedDistrict("");
     const selectedDistricts = states.find(
       (state) => state.name === selectedState
@@ -92,7 +102,6 @@ const LeadsTable = () => {
   };
 
   const selectHandler = (item) => {
-    console.log(item);
     let exit = selectedFilter.find((filter) => filter.key === item.key);
     if (!exit) {
       //find is item is present in commonFilter Data or not
@@ -118,12 +127,12 @@ const LeadsTable = () => {
       );
     }
   };
-  console.log(selectedFilter);
 
   const removeHandler = (item) => {
     setSelectedFilter(
       selectedFilter.filter((filter) => filter.key !== item.key)
     );
+
     if (commonFilterData.find((filter) => filter.key === item.key)) {
       setCommonFilter(
         commonFilter.map((filter) =>
@@ -132,6 +141,22 @@ const LeadsTable = () => {
             : filter
         )
       );
+    } else if (otherFilterData.find((filter) => filter.key === item.key)) {
+      console.log(item);
+
+      if (item.key == "storeName") {
+        setStoreStatus(!storeStatus);
+      } else if (item.key == "status") {
+        setCurrentStatus(!currentStatus);
+      } else if (item.key == "area") {
+        setAreaStatus(!areaStatus);
+      } else if (item.key == "referralStatus") {
+        setReferralStatus(!referralStatus);
+      } else if (item.key == "zipCode") {
+        setZipCodeStatus(!zipCodeStatus);
+      } else if (item.key == "newlead") {
+        setNewAddedLeadStatus(!newAddedLeadStatus);
+      }
     }
   };
 
@@ -139,7 +164,16 @@ const LeadsTable = () => {
     setFilterStatus(!filterStatus);
   };
 
-  // currentStatusValue
+  const HandleMultiSelect = (e) => {
+  
+    const allValues = e
+      .map((option) => option.value)
+      .join(", ");
+    
+    console.log(allValues);
+  };
+
+  // currentStatusValue  with select option
   useEffect(() => {
     if (selectedFilter.find((filter) => filter.key == currentStatusValue.key)) {
       setSelectedFilter(
@@ -155,22 +189,6 @@ const LeadsTable = () => {
       }
     }
   }, [currentStatusValue]);
-
-  useEffect(() => {
-    if (selectedFilter.find((filter) => filter.key == storeNameValue.key)) {
-      setSelectedFilter(
-        selectedFilter.map((prev) =>
-          prev.key == storeNameValue.key
-            ? { ...prev, value: storeNameValue.value }
-            : prev
-        )
-      );
-    } else {
-      if (storeNameValue.value.length > 0) {
-        setSelectedFilter((prev) => [...prev, storeNameValue]);
-      }
-    }
-  }, [storeNameValue]);
 
   useEffect(() => {
     if (
@@ -189,6 +207,24 @@ const LeadsTable = () => {
       }
     }
   }, [referralStatusValue]);
+
+  //text input
+  useEffect(() => {
+    if (selectedFilter.find((filter) => filter.key == storeNameValue.key)) {
+      setSelectedFilter(
+        selectedFilter.map((prev) =>
+          prev.key == storeNameValue.key
+            ? { ...prev, value: storeNameValue.value }
+            : prev
+        )
+      );
+    } else {
+      if (storeNameValue.value.length > 0) {
+        setSelectedFilter((prev) => [...prev, storeNameValue]);
+      }
+    }
+  }, [storeNameValue]);
+
   useEffect(() => {
     if (selectedFilter.find((filter) => filter.key == zipCodeValue.key)) {
       setSelectedFilter(
@@ -203,6 +239,7 @@ const LeadsTable = () => {
     }
   }, [zipCodeValue]);
 
+  //two date input
   useEffect(() => {
     if (selectedFilter.find((filter) => filter.key == newAddedLeadValue.key)) {
       setSelectedFilter(
@@ -219,19 +256,11 @@ const LeadsTable = () => {
     }
   }, [newAddedLeadValue]);
 
-  // other filter handdler
-  //    const handleOtherFilterChange = (e) => {
-  //     let { name, value } = e.target;
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value,
-  //     }));
-  // }
   return (
-    <div className="w-11/12 p-4 my-5 absolute left-20 h-screen flex gap-2">
+    <div className="w-11/12 p-4 my-5 absolute left-20 flex gap-2">
       {/* filter code */}
       {filterStatus && (
-        <div className="w-1/4 shadow-md h-screen">
+        <div className="w-1/4 shadow-md">
           <div className="flex justify-between border border-gray-200 p-1">
             <div className="flex items-center">
               <img src={logo} className="h-3" alt="" />
@@ -288,36 +317,32 @@ const LeadsTable = () => {
             {/* Store Name */}
             <div>
               <div>
-                <div className="flex justify-between items-center p-2 cursor-pointer border border-gray-100">
+                <div
+                  className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
+                  onClick={() => {
+                    setStoreStatus(!storeStatus);
+                    setstoreNameValue({
+                      ...storeNameValue,
+                      isSelect: !storeNameValue.isSelect,
+                    });
+
+                    selectHandler({
+                      ...storeNameValue,
+                      isSelect: !storeStatus,
+                    });
+                  }}
+                >
                   <div className="flex gap-2 items-center">
                     <input
                       type="checkbox"
                       className="cursor-pointer"
                       checked={storeStatus}
-                      onChange={(e) =>
-                        setStoreStatus(e.target.checked ? true : false)
-                      }
                     />
                     <span className="font-medium text-gray-600">
                       Store Name
                     </span>
                   </div>
-                  <div
-                    onClick={() => {
-                      setStoreStatus(!storeStatus);
-
-                      setstoreNameValue({
-                        ...storeNameValue,
-                        isSelect: !storeNameValue.isSelect,
-                      });
-
-                      selectHandler({
-                        key: "storeName",
-                        value: "",
-                        isSelect: !storeStatus,
-                      });
-                    }}
-                  >
+                  <div>
                     <img src={logo} className="h-4" alt="" />
                   </div>
                 </div>
@@ -343,21 +368,33 @@ const LeadsTable = () => {
 
             {/* Current Status */}
             <div>
-              <div className="flex justify-between items-center p-2 cursor-pointer border border-gray-100">
+              <div
+                className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
+                onClick={() => {
+                  setCurrentStatus(!currentStatus);
+
+                  setCurrentStatusValue({
+                    ...currentStatusValue,
+                    isSelect: !currentStatusValue.isSelect,
+                  });
+
+                  selectHandler({
+                    ...currentStatusValue,
+                    isSelect: !currentStatus,
+                  });
+                }}
+              >
                 <div className="flex gap-2 items-center">
                   <input
                     type="checkbox"
                     className="cursor-pointer"
                     checked={currentStatus}
-                    onChange={(e) =>
-                      setCurrentStatus(e.target.checked ? true : false)
-                    }
                   />
                   <span className="font-medium text-gray-600">
                     Current Status
                   </span>
                 </div>
-                <div onClick={() => setCurrentStatus(!currentStatus)}>
+                <div>
                   <img src={logo} className="h-4" alt="" />
                 </div>
               </div>
@@ -365,40 +402,45 @@ const LeadsTable = () => {
               {currentStatus && (
                 <div className=" bg-gray-200 p-4 space-y-2">
                   <p className="text-xs text-gray-500">select Current Status</p>
-                  <select
-                    onChange={(e) =>
-                      setCurrentStatusValue({
-                        ...currentStatusValue,
-                        value: e.target.value,
-                      })
-                    }
-                    className="text-gray-600 text-sm w-full shadow-md outline-none"
-                  >
-                    <option value="">Select......</option>
-                    <option value="one">one</option>
-                    <option value="two">two</option>
-                    <option value="three">three</option>
-                    <option value="four">four</option>
-                  </select>
+                  <Select
+                    onChange={HandleMultiSelect}
+                    isMulti
+                    name="colors"
+                    options={statusMultiOption}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                  />
                 </div>
               )}
             </div>
 
             {/* Area */}
             <div>
-              <div className="flex justify-between items-center p-2 cursor-pointer border border-gray-100">
+              <div
+                className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
+                onClick={() => {
+                  setAreaStatus(!areaStatus);
+
+                  setAreaValue({
+                    ...areaValue,
+                    isSelect: !areaValue.isSelect,
+                  });
+
+                  selectHandler({
+                    ...areaValue,
+                    isSelect: !areaStatus,
+                  });
+                }}
+              >
                 <div className="flex gap-2 items-center">
                   <input
                     type="checkbox"
                     className="cursor-pointer"
                     checked={areaStatus}
-                    onChange={(e) =>
-                      setAreaStatus(e.target.checked ? true : false)
-                    }
                   />
                   <span className="font-medium text-gray-600">Area</span>
                 </div>
-                <div onClick={() => setAreaStatus(!areaStatus)}>
+                <div>
                   <img src={logo} className="h-4" alt="" />
                 </div>
               </div>
@@ -443,41 +485,55 @@ const LeadsTable = () => {
             {/* Referral Status */}
             <div>
               <div>
-                <div className="flex justify-between items-center p-2 cursor-pointer border border-gray-100">
+                <div
+                  className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
+                  onClick={() => {
+                    setReferralStatus(!referralStatus);
+
+                    setReferralStatusValue({
+                      ...referralStatusValue,
+                      isSelect: !referralStatusValue.isSelect,
+                    });
+
+                    selectHandler({
+                      ...referralStatusValue,
+                      isSelect: !referralStatus,
+                    });
+                  }}
+                >
                   <div className="flex gap-2 items-center">
                     <input
                       type="checkbox"
                       className="cursor-pointer"
                       checked={referralStatus}
-                      onChange={(e) =>
-                        setReferralStatus(e.target.checked ? true : false)
-                      }
                     />
                     <span className="font-medium text-gray-600">
-                      Referral Status
+                      Referral Status {referralStatus}
                     </span>
                   </div>
-                  <div onClick={() => setReferralStatus(!referralStatus)}>
+                  <div>
                     <img src={logo} className="h-4" alt="" />
                   </div>
                 </div>
 
                 {referralStatus && (
-                  <div className="w-full bg-gray-200  space-y-2 p-3">
+                  <div className=" bg-gray-200 p-4 space-y-2">
                     <p className="text-xs text-gray-500">
-                      Enter Referral Status
+                      select Referral Status
                     </p>
-                    <input
-                      type="text"
-                      className="focus:outline-none w-full shadow-md p-1"
-                      value={referralStatusValue.value}
+                    <select
                       onChange={(e) =>
                         setReferralStatusValue({
                           ...referralStatusValue,
                           value: e.target.value,
                         })
                       }
-                    />
+                      className="text-gray-600 text-sm w-full shadow-md outline-none"
+                    >
+                      <option value="">Select......</option>
+                      <option value="true">Yes</option>
+                      <option value="false">No</option>
+                    </select>
                   </div>
                 )}
               </div>
@@ -485,19 +541,31 @@ const LeadsTable = () => {
             {/* Zip Code */}
             <div>
               <div>
-                <div className="flex justify-between items-center p-2 cursor-pointer border border-gray-100">
+                <div
+                  className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
+                  onClick={() => {
+                    setZipCodeStatus(!zipCodeStatus);
+
+                    setZipCodeValue({
+                      ...zipCodeValue,
+                      isSelect: !zipCodeValue.isSelect,
+                    });
+
+                    selectHandler({
+                      ...zipCodeValue,
+                      isSelect: !zipCodeStatus,
+                    });
+                  }}
+                >
                   <div className="flex gap-2 items-center">
                     <input
                       type="checkbox"
                       className="cursor-pointer"
                       checked={zipCodeStatus}
-                      onChange={(e) =>
-                        setZipCodeStatus(e.target.checked ? true : false)
-                      }
                     />
                     <span className="font-medium text-gray-600">Zip Code</span>
                   </div>
-                  <div onClick={() => setZipCodeStatus(!zipCodeStatus)}>
+                  <div>
                     <img src={logo} className="h-4" alt="" />
                   </div>
                 </div>
@@ -523,23 +591,33 @@ const LeadsTable = () => {
             {/* New Added Lead */}
             <div>
               <div>
-                <div className="flex justify-between items-center p-2 cursor-pointer border border-gray-100">
+                <div
+                  className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
+                  onClick={() => {
+                    setNewAddedLeadStatus(!newAddedLeadStatus);
+
+                    setNewAddedLeadValue({
+                      ...newAddedLeadValue,
+                      isSelect: !zipCodeValue.isSelect,
+                    });
+
+                    selectHandler({
+                      ...newAddedLeadValue,
+                      isSelect: !newAddedLeadStatus,
+                    });
+                  }}
+                >
                   <div className="flex gap-2 items-center">
                     <input
                       type="checkbox"
                       className="cursor-pointer"
                       checked={newAddedLeadStatus}
-                      onChange={(e) =>
-                        setNewAddedLeadStatus(e.target.checked ? true : false)
-                      }
                     />
                     <span className="font-medium text-gray-600">
                       New Added Lead
                     </span>
                   </div>
-                  <div
-                    onClick={() => setNewAddedLeadStatus(!newAddedLeadStatus)}
-                  >
+                  <div>
                     <img src={logo} className="h-4" alt="" />
                   </div>
                 </div>
