@@ -299,7 +299,7 @@ const LeadsTable = () => {
       {filterStatus && (
         <div className="w-1/4 shadow-md">
           <div className="flex justify-between border border-gray-200 p-1">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               <div className="p-1 bg-blue-100 rounded-sm">
                 <img src={filter} className="h-3" alt="" />
               </div>
