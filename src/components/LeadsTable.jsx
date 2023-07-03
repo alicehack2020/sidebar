@@ -73,11 +73,8 @@ const LeadsTable = () => {
     { key: "area", value: "", isSelect: areaStatus },
   ]);
 
-
-
   //filter applied count
-  const [filterCount,setFilterCount]=useState(0)
-
+  const [filterCount, setFilterCount] = useState(0);
 
   // to select State
   const handleStateChange = (event) => {
@@ -203,7 +200,7 @@ const LeadsTable = () => {
     setReferralStatus(false);
     setZipCodeStatus(false);
     setNewAddedLeadStatus(false);
-    setFilterCount(0)
+    setFilterCount(0);
   };
 
   //status multi select
@@ -252,7 +249,7 @@ const LeadsTable = () => {
   //api call
   const haddleApiCall = () => {
     let filterData = [...selectedFilter];
-   
+
     //new lead
     if (selectedFilter[8].isSelect) {
       filterData = filterData.map((filter) => {
@@ -278,21 +275,13 @@ const LeadsTable = () => {
     filterData = filterData
       .filter((obj) => obj.value)
       .map(({ key, value }) => ({ key, value }));
-    
-    
+
     console.log(filterData);
   };
 
   useEffect(() => {
     haddleApiCall();
   }, [selectedFilter]);
-
-
-
-
-
-
-
 
   useEffect(() => {
     const count = selectedFilter.reduce((accumulator, obj) => {
@@ -301,10 +290,9 @@ const LeadsTable = () => {
       }
       return accumulator;
     }, 0);
-    setFilterCount(count)
-  },[selectedFilter])
+    setFilterCount(count);
+  }, [selectedFilter]);
 
-  
   return (
     <div className="w-11/12 p-4 my-5 absolute left-20 flex gap-2">
       {/* filter code */}
@@ -708,6 +696,27 @@ const LeadsTable = () => {
         {/* table code */}
         <div>
           <h1>Table Code</h1>
+          <div className="p-6">
+            <div className="flex w-64 pl-2 relative flex-col space-y-1 rounded-lg border border-gray-200 shadow-md">
+              <img className="h-11 absolute -top-4 left-3 w-11 rounded-full border  bg-blue-400 shadow-md" />
+              <div className="pt-1 text-center">
+                <h1 className="text-sm pl-2 font-bold tracking-wide text-gray-500">
+                  ASSIGNED LEADS
+                </h1>
+              </div>
+              <div className="pl-2 pt-1">
+                <button className="rounded-md bg-red-400 px-1.5 text-xs font-semibold tracking-wide text-white">
+                  NEW
+                </button>
+                <h1 className="text-3xl  font-bold text-center text-blue-800">
+                  1
+                </h1>{" "}
+                <p className=" pb-6 pt-2 text-sm text-gray-500 tracking-wide">
+                  Leads assigned to you
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
