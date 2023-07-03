@@ -76,7 +76,7 @@ const LeadsTable = () => {
 
 
   //filter applied count
-  const [filterCount,setFilterCount]=useState()
+  const [filterCount,setFilterCount]=useState(0)
 
 
   // to select State
@@ -203,6 +203,7 @@ const LeadsTable = () => {
     setReferralStatus(false);
     setZipCodeStatus(false);
     setNewAddedLeadStatus(false);
+    setFilterCount(0)
   };
 
   //status multi select
@@ -251,7 +252,7 @@ const LeadsTable = () => {
   //api call
   const haddleApiCall = () => {
     let filterData = [...selectedFilter];
-
+   
     //new lead
     if (selectedFilter[8].isSelect) {
       filterData = filterData.map((filter) => {
@@ -278,15 +279,30 @@ const LeadsTable = () => {
       .filter((obj) => obj.value)
       .map(({ key, value }) => ({ key, value }));
     
-    //filter count
-      setFilterCount(filterData.length)
-
+    
     console.log(filterData);
   };
 
   useEffect(() => {
     haddleApiCall();
   }, [selectedFilter]);
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    const count = selectedFilter.reduce((accumulator, obj) => {
+      if (obj.isSelect && obj.value.length > 1) {
+        return accumulator + 1;
+      }
+      return accumulator;
+    }, 0);
+    setFilterCount(count)
+  },[selectedFilter])
 
   
   return (
@@ -672,9 +688,9 @@ const LeadsTable = () => {
               className="relative cursor-pointer"
               onClick={filterStatusHandler}
             >
-              {/* <p className="absolute right-0 -top-2 text-white bg-blue-500 rounded-full w-3 h-3 flex justify-center items-center">
+              <p className="absolute right-0 -top-2 text-white bg-blue-500 rounded-full w-3 h-3 flex justify-center items-center p-2">
                 <span className="text-xs">{filterCount}</span>
-              </p> */}
+              </p>
               <div className="flex items-center p-1 border border-gray-300 bg-gray-100 rounded-sm gap-x-3">
                 <div className="p-1 bg-blue-100 rounded-sm">
                   <img src={filter} className="h-4" alt="" />
