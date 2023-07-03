@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import logo from "../assets/react.svg";
 import { states } from "../data";
 import Select from "react-select";
-
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import min from "../assets/min.png";
+import filter from "../assets/filter.jpg";
 //multi select data
 const statusMultiOption = [
   { value: "chocolate", label: "Chocolate" },
@@ -38,7 +40,7 @@ const otherFilterData = [
 
 const LeadsTable = () => {
   //filter button hide/hide
-  const [filterStatus, setFilterStatus] = useState(true);
+  const [filterStatus, setFilterStatus] = useState(false);
 
   //common filter options
   const [commonFilter, setCommonFilter] = useState(commonFilterData);
@@ -71,6 +73,12 @@ const LeadsTable = () => {
     { key: "area", value: "", isSelect: areaStatus },
   ]);
 
+
+
+  //filter applied count
+  const [filterCount,setFilterCount]=useState()
+
+
   // to select State
   const handleStateChange = (event) => {
     handleOtherFilterChange(event);
@@ -92,7 +100,7 @@ const LeadsTable = () => {
 
   // add to applied filter section
   const selectHandler = (item) => {
-    let exit = selectedFilter.find((filter) => filter.key === item.key);
+    let exit = selectedFilter.find((filter) => filter?.key === item?.key);
     if (!exit) {
       //find is item is present in commonFilter Data or not
       if (commonFilterData.find((filter) => filter.key === item.key)) {
@@ -111,6 +119,20 @@ const LeadsTable = () => {
         ]);
       }
     } else {
+      //double click on common filter options
+      if (commonFilterData.find((filter) => filter.key === item.key)) {
+        setSelectedFilter(
+          selectedFilter.map((filter) => filter.key !== item.key)
+        );
+
+        setCommonFilter(
+          commonFilter.map((filter) =>
+            filter.key == item.key
+              ? { ...filter, common: false, isSelect: false }
+              : filter
+          )
+        );
+      }
       //other remove if again click
       setSelectedFilter(
         selectedFilter.filter((filter) => filter.key !== item.key)
@@ -161,6 +183,27 @@ const LeadsTable = () => {
   const filterStatusHandler = () => {
     setFilterStatus(!filterStatus);
   };
+  //clear all
+  const clearAll = () => {
+    setSelectedFilter(
+      selectedFilter.map((filter) => ({ ...filter, isSelect: false }))
+    );
+
+    setCommonFilter(
+      commonFilter.map((filter) => ({
+        ...filter,
+        common: false,
+        isSelect: false,
+      }))
+    );
+
+    setStoreStatus(false);
+    setCurrentStatus(false);
+    setAreaStatus(false);
+    setReferralStatus(false);
+    setZipCodeStatus(false);
+    setNewAddedLeadStatus(false);
+  };
 
   //status multi select
   const HandleMultiSelect = (e) => {
@@ -205,6 +248,47 @@ const LeadsTable = () => {
     });
   };
 
+  //api call
+  const haddleApiCall = () => {
+    let filterData = [...selectedFilter];
+
+    //new lead
+    if (selectedFilter[8].isSelect) {
+      filterData = filterData.map((filter) => {
+        if (filter.key === "addedFromDate" || filter.key === "addedToDate") {
+          return { ...filter, isSelect: true };
+        }
+        return filter;
+      });
+    }
+
+    //area
+    else if (selectedFilter[9].isSelect) {
+      filterData = filterData.map((filter) => {
+        if (filter.key === "state" || filter.key === "district") {
+          return { ...filter, isSelect: true };
+        }
+        return filter;
+      });
+    }
+
+    //clean data to send backend
+
+    filterData = filterData
+      .filter((obj) => obj.value)
+      .map(({ key, value }) => ({ key, value }));
+    
+    //filter count
+      setFilterCount(filterData.length)
+
+    console.log(filterData);
+  };
+
+  useEffect(() => {
+    haddleApiCall();
+  }, [selectedFilter]);
+
+  
   return (
     <div className="w-11/12 p-4 my-5 absolute left-20 flex gap-2">
       {/* filter code */}
@@ -212,21 +296,30 @@ const LeadsTable = () => {
         <div className="w-1/4 shadow-md">
           <div className="flex justify-between border border-gray-200 p-1">
             <div className="flex items-center">
-              <img src={logo} className="h-3" alt="" />
-              <p className="font-medium">Filters</p>
+              <div className="p-1 bg-blue-100 rounded-sm">
+                <img src={filter} className="h-3" alt="" />
+              </div>
+              <p className="text-sm font-medium text-gray-500">Filters</p>
             </div>
             <div
               className="items-center cursor-pointer"
               onClick={filterStatusHandler}
             >
-              <img src={logo} className="h-3" alt="" />
-              <p className="text-sm">Min</p>
+              <img src={min} className="h-3" alt="" />
+              <p className="text-xs">Min</p>
             </div>
           </div>
           <div className="border border-gray-200 ">
             <div className="flex justify-between items-center p-1">
-              <p className="font-medium text-gray-500">Applied Filters</p>
-              <p className="text-blue-500 text-sm cursor-pointer">Clear All</p>
+              <p className="text-sm font-medium text-gray-500">
+                Applied Filters
+              </p>
+              <p
+                className="text-blue-500 text-sm cursor-pointer"
+                onClick={clearAll}
+              >
+                Clear All
+              </p>
             </div>
             {/* applied filter */}
             <div className="grid grid-cols-2 gap-1 py-4 px-2">
@@ -280,12 +373,16 @@ const LeadsTable = () => {
                       className="cursor-pointer"
                       checked={storeStatus}
                     />
-                    <span className="font-medium text-gray-600">
+                    <span className="text-sm font-medium text-gray-600">
                       Store Name
                     </span>
                   </div>
                   <div>
-                    <img src={logo} className="h-4" alt="" />
+                    <ChevronDownIcon
+                      className={`w-4 h-4 ${
+                        storeStatus ? "transform rotate-180" : ""
+                      }`}
+                    />
                   </div>
                 </div>
 
@@ -308,6 +405,7 @@ const LeadsTable = () => {
             <div>
               <div
                 className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
+                name="status"
                 onClick={(event) => {
                   setCurrentStatus(!currentStatus);
                   handleOtherFilterAccordion(event);
@@ -319,12 +417,16 @@ const LeadsTable = () => {
                     className="cursor-pointer"
                     checked={currentStatus}
                   />
-                  <span className="font-medium text-gray-600">
+                  <span className="text-sm font-medium text-gray-600">
                     Current Status
                   </span>
                 </div>
                 <div>
-                  <img src={logo} className="h-4" alt="" />
+                  <ChevronDownIcon
+                    className={`w-4 h-4 ${
+                      currentStatus ? "transform rotate-180" : ""
+                    }`}
+                  />
                 </div>
               </div>
 
@@ -359,19 +461,26 @@ const LeadsTable = () => {
                     className="cursor-pointer"
                     checked={areaStatus}
                   />
-                  <span className="font-medium text-gray-600">Area</span>
+                  <span className="text-sm font-medium text-gray-600">
+                    Area
+                  </span>
                 </div>
                 <div>
-                  <img src={logo} className="h-4" alt="" />
+                  <ChevronDownIcon
+                    className={`w-4 h-4 ${
+                      areaStatus ? "transform rotate-180" : ""
+                    }`}
+                  />
                 </div>
               </div>
 
               {areaStatus && (
-                <div className="flex flex-col gap-2 p-2">
+                <div className="flex flex-col gap-2 bg-gray-200 p-4">
+                  <p className="text-xs text-gray-500">select State</p>
                   <select
                     id="state"
                     name="state"
-                    className="border border-gray-300 rounded"
+                    className="text-gray-600 text-sm w-full shadow-md outline-none"
                     value={selectedState}
                     onChange={handleStateChange}
                   >
@@ -385,10 +494,11 @@ const LeadsTable = () => {
 
                   {selectedState && (
                     <div>
+                      <p className="text-xs text-gray-500">select District</p>
                       <select
                         id="district"
                         name="district"
-                        className="border border-gray-300 rounded w-full"
+                        className="text-gray-600 text-sm w-full shadow-md outline-none"
                         value={selectedDistrict}
                         onChange={handleDistrictChange}
                       >
@@ -422,12 +532,16 @@ const LeadsTable = () => {
                       className="cursor-pointer"
                       checked={referralStatus}
                     />
-                    <span className="font-medium text-gray-600">
+                    <span className="text-sm font-medium text-gray-600">
                       Referral Status {referralStatus}
                     </span>
                   </div>
                   <div>
-                    <img src={logo} className="h-4" alt="" />
+                    <ChevronDownIcon
+                      className={`w-4 h-4 ${
+                        referralStatus ? "transform rotate-180" : ""
+                      }`}
+                    />
                   </div>
                 </div>
 
@@ -466,10 +580,16 @@ const LeadsTable = () => {
                       className="cursor-pointer"
                       checked={zipCodeStatus}
                     />
-                    <span className="font-medium text-gray-600">Zip Code</span>
+                    <span className="text-sm font-medium text-gray-600">
+                      Zip Code
+                    </span>
                   </div>
                   <div>
-                    <img src={logo} className="h-4" alt="" />
+                    <ChevronDownIcon
+                      className={`w-4 h-4 ${
+                        zipCodeStatus ? "transform rotate-180" : ""
+                      }`}
+                    />
                   </div>
                 </div>
 
@@ -504,20 +624,22 @@ const LeadsTable = () => {
                       className="cursor-pointer"
                       checked={newAddedLeadStatus}
                     />
-                    <span className="font-medium text-gray-600">
+                    <span className="text-sm font-medium text-gray-600">
                       New Added Lead
                     </span>
                   </div>
                   <div>
-                    <img src={logo} className="h-4" alt="" />
+                    <ChevronDownIcon
+                      className={`w-4 h-4 ${
+                        newAddedLeadStatus ? "transform rotate-180" : ""
+                      }`}
+                    />
                   </div>
                 </div>
 
                 {newAddedLeadStatus && (
                   <div className="w-full bg-gray-200  space-y-2 p-3">
-                    <p className="text-xs text-gray-500">
-                      From
-                    </p>
+                    <p className="text-xs text-gray-500">From</p>
                     <input
                       type="date"
                       name="addedFromDate"
@@ -525,9 +647,7 @@ const LeadsTable = () => {
                       value={selectedFilter[6].value}
                       onChange={handleOtherFilterChange}
                     />
-                    <p className="text-xs text-gray-500">
-                      To
-                    </p>
+                    <p className="text-xs text-gray-500">To</p>
                     <input
                       type="date"
                       name="addedToDate"
@@ -552,12 +672,16 @@ const LeadsTable = () => {
               className="relative cursor-pointer"
               onClick={filterStatusHandler}
             >
-              <p className="absolute right-0 -top-2 text-white bg-blue-500 rounded-full w-3 h-3 flex justify-center items-center">
-                <span className="text-xs">{selectedFilter.length}</span>
-              </p>
+              {/* <p className="absolute right-0 -top-2 text-white bg-blue-500 rounded-full w-3 h-3 flex justify-center items-center">
+                <span className="text-xs">{filterCount}</span>
+              </p> */}
               <div className="flex items-center p-1 border border-gray-300 bg-gray-100 rounded-sm gap-x-3">
-                <img src={logo} className="h-4" alt="" />
-                <p className="text-blue-500 font-medium">Filters</p>
+                <div className="p-1 bg-blue-100 rounded-sm">
+                  <img src={filter} className="h-4" alt="" />
+                </div>
+                <p className="text-blue-500 text-sm font-medium px-2">
+                  Filters
+                </p>
               </div>
             </div>
 
