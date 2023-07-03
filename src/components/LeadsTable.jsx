@@ -3,6 +3,7 @@ import logo from "../assets/react.svg";
 import { states } from "../data";
 import Select from "react-select";
 
+//multi select data
 const statusMultiOption = [
   { value: "chocolate", label: "Chocolate" },
   { value: "strawberry", label: "Strawberry" },
@@ -36,10 +37,9 @@ const otherFilterData = [
 ];
 
 const LeadsTable = () => {
-  // manage all states here
+  //filter button hide/hide
   const [filterStatus, setFilterStatus] = useState(true);
-  //it will contain all selected data
-  const [selectedFilter, setSelectedFilter] = useState([]);
+
   //common filter options
   const [commonFilter, setCommonFilter] = useState(commonFilterData);
 
@@ -52,41 +52,28 @@ const LeadsTable = () => {
   const [newAddedLeadStatus, setNewAddedLeadStatus] = useState(false);
   //accordion status end
 
-  //other filters values
-  const [storeNameValue, setstoreNameValue] = useState({
-    key: "storeName",
-    value: "",
-    isSelect: false,
-  });
-  const [currentStatusValue, setCurrentStatusValue] = useState({
-    key: "status",
-    value: "",
-    isSelect: false,
-  });
-  const [areaValue, setAreaValue] = useState({ key: "area", value: "" });
-
-  const [referralStatusValue, setReferralStatusValue] = useState({
-    key: "referralStatus",
-    value: "",
-    isSelect: false,
-  });
-  const [zipCodeValue, setZipCodeValue] = useState({
-    key: "zipCode",
-    value: "",
-    isSelect: false,
-  });
-  const [newAddedLeadValue, setNewAddedLeadValue] = useState({
-    key: "newlead",
-    value: "",
-    isSelect: false,
-  });
-
   //area
   const [selectedState, setSelectedState] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [districts, setDistricts] = useState([]);
 
+  //it will contain all selected data
+  const [selectedFilter, setSelectedFilter] = useState([
+    { key: "storeName", value: "", isSelect: storeStatus },
+    { key: "status", value: "", isSelect: currentStatus },
+    { key: "state", value: selectedState, isSelect: areaStatus },
+    { key: "district", value: "", isSelect: areaStatus },
+    { key: "referralStatus", value: "", isSelect: referralStatus },
+    { key: "zipCode", value: "", isSelect: zipCodeStatus },
+    { key: "addedFromDate", value: "", isSelect: newAddedLeadStatus },
+    { key: "addedToDate", value: "", isSelect: newAddedLeadStatus },
+    { key: "newlead", value: "", isSelect: newAddedLeadStatus },
+    { key: "area", value: "", isSelect: areaStatus },
+  ]);
+
+  // to select State
   const handleStateChange = (event) => {
+    handleOtherFilterChange(event);
     const selectedState = event.target.value;
     setSelectedState(selectedState);
 
@@ -97,10 +84,13 @@ const LeadsTable = () => {
     setDistricts(selectedDistricts);
   };
 
+  // to select District
   const handleDistrictChange = (event) => {
+    handleOtherFilterChange(event);
     setSelectedDistrict(event.target.value);
   };
 
+  // add to applied filter section
   const selectHandler = (item) => {
     let exit = selectedFilter.find((filter) => filter.key === item.key);
     if (!exit) {
@@ -128,10 +118,17 @@ const LeadsTable = () => {
     }
   };
 
+  // remove from applied filter section
   const removeHandler = (item) => {
-    setSelectedFilter(
-      selectedFilter.filter((filter) => filter.key !== item.key)
-    );
+    setSelectedFilter((prevState) => {
+      const updatedFilter = prevState.map((filter) => {
+        if (filter.key === item.key) {
+          return { ...filter, isSelect: false };
+        }
+        return filter;
+      });
+      return updatedFilter;
+    });
 
     if (commonFilterData.find((filter) => filter.key === item.key)) {
       setCommonFilter(
@@ -160,101 +157,53 @@ const LeadsTable = () => {
     }
   };
 
+  //hide unhide filter button
   const filterStatusHandler = () => {
     setFilterStatus(!filterStatus);
   };
 
+  //status multi select
   const HandleMultiSelect = (e) => {
-  
-    const allValues = e
-      .map((option) => option.value)
-      .join(", ");
-    
-    console.log(allValues);
+    const inputValue = e.map((option) => option.value).join(", ");
+
+    setSelectedFilter((prevState) => {
+      const updatedFilter = prevState.map((filter) => {
+        if (filter.key === "status") {
+          return { ...filter, value: inputValue };
+        }
+        return filter;
+      });
+      return updatedFilter;
+    });
   };
 
-  // currentStatusValue  with select option
-  useEffect(() => {
-    if (selectedFilter.find((filter) => filter.key == currentStatusValue.key)) {
-      setSelectedFilter(
-        selectedFilter.map((prev) =>
-          prev.key == currentStatusValue.key
-            ? { ...prev, value: currentStatusValue.value }
-            : prev
-        )
-      );
-    } else {
-      if (currentStatusValue.value.length > 0) {
-        setSelectedFilter((prev) => [...prev, currentStatusValue]);
-      }
-    }
-  }, [currentStatusValue]);
+  //accordion select/deselect
+  const handleOtherFilterAccordion = (event) => {
+    let name = event.currentTarget.getAttribute("name");
+    setSelectedFilter((prevState) => {
+      const updatedFilter = prevState.map((filter) => {
+        if (filter.key === name) {
+          return { ...filter, isSelect: !filter.isSelect };
+        }
+        return filter;
+      });
+      return updatedFilter;
+    });
+  };
 
-  useEffect(() => {
-    if (
-      selectedFilter.find((filter) => filter.key == referralStatusValue.key)
-    ) {
-      setSelectedFilter(
-        selectedFilter.map((prev) =>
-          prev.key == referralStatusValue.key
-            ? { ...prev, value: referralStatusValue.value }
-            : prev
-        )
-      );
-    } else {
-      if (referralStatusValue.value.length > 0) {
-        setSelectedFilter((prev) => [...prev, referralStatusValue]);
-      }
-    }
-  }, [referralStatusValue]);
-
-  //text input
-  useEffect(() => {
-    if (selectedFilter.find((filter) => filter.key == storeNameValue.key)) {
-      setSelectedFilter(
-        selectedFilter.map((prev) =>
-          prev.key == storeNameValue.key
-            ? { ...prev, value: storeNameValue.value }
-            : prev
-        )
-      );
-    } else {
-      if (storeNameValue.value.length > 0) {
-        setSelectedFilter((prev) => [...prev, storeNameValue]);
-      }
-    }
-  }, [storeNameValue]);
-
-  useEffect(() => {
-    if (selectedFilter.find((filter) => filter.key == zipCodeValue.key)) {
-      setSelectedFilter(
-        selectedFilter.map((prev) =>
-          prev.key == zipCodeValue.key
-            ? { ...prev, value: zipCodeValue.value }
-            : prev
-        )
-      );
-    } else if (zipCodeValue.value.length > 0) {
-      setSelectedFilter((prev) => [...prev, zipCodeValue]);
-    }
-  }, [zipCodeValue]);
-
-  //two date input
-  useEffect(() => {
-    if (selectedFilter.find((filter) => filter.key == newAddedLeadValue.key)) {
-      setSelectedFilter(
-        selectedFilter.map((prev) =>
-          prev.key == newAddedLeadValue.key
-            ? { ...prev, value: newAddedLeadValue.value }
-            : prev
-        )
-      );
-    } else {
-      if (newAddedLeadValue.value.length > 0) {
-        setSelectedFilter((prev) => [...prev, newAddedLeadValue]);
-      }
-    }
-  }, [newAddedLeadValue]);
+  //to add value to respective key
+  const handleOtherFilterChange = (event) => {
+    const inputValue = event.target.value;
+    setSelectedFilter((prevState) => {
+      const updatedFilter = prevState.map((filter) => {
+        if (filter.key === event.target.name) {
+          return { ...filter, value: inputValue };
+        }
+        return filter;
+      });
+      return updatedFilter;
+    });
+  };
 
   return (
     <div className="w-11/12 p-4 my-5 absolute left-20 flex gap-2">
@@ -319,17 +268,10 @@ const LeadsTable = () => {
               <div>
                 <div
                   className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
-                  onClick={() => {
+                  name="storeName"
+                  onClick={(event) => {
                     setStoreStatus(!storeStatus);
-                    setstoreNameValue({
-                      ...storeNameValue,
-                      isSelect: !storeNameValue.isSelect,
-                    });
-
-                    selectHandler({
-                      ...storeNameValue,
-                      isSelect: !storeStatus,
-                    });
+                    handleOtherFilterAccordion(event);
                   }}
                 >
                   <div className="flex gap-2 items-center">
@@ -352,14 +294,10 @@ const LeadsTable = () => {
                     <p className="text-xs text-gray-500">Enter Store Name</p>
                     <input
                       type="text"
+                      name="storeName"
                       className="focus:outline-none w-full shadow-md p-1"
-                      value={storeNameValue.value}
-                      onChange={(e) =>
-                        setstoreNameValue({
-                          ...storeNameValue,
-                          value: e.target.value,
-                        })
-                      }
+                      value={selectedFilter[0].value}
+                      onChange={handleOtherFilterChange}
                     />
                   </div>
                 )}
@@ -370,18 +308,9 @@ const LeadsTable = () => {
             <div>
               <div
                 className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
-                onClick={() => {
+                onClick={(event) => {
                   setCurrentStatus(!currentStatus);
-
-                  setCurrentStatusValue({
-                    ...currentStatusValue,
-                    isSelect: !currentStatusValue.isSelect,
-                  });
-
-                  selectHandler({
-                    ...currentStatusValue,
-                    isSelect: !currentStatus,
-                  });
+                  handleOtherFilterAccordion(event);
                 }}
               >
                 <div className="flex gap-2 items-center">
@@ -405,7 +334,7 @@ const LeadsTable = () => {
                   <Select
                     onChange={HandleMultiSelect}
                     isMulti
-                    name="colors"
+                    name="status"
                     options={statusMultiOption}
                     className="basic-multi-select"
                     classNamePrefix="select"
@@ -418,18 +347,10 @@ const LeadsTable = () => {
             <div>
               <div
                 className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
-                onClick={() => {
+                name="area"
+                onClick={(event) => {
                   setAreaStatus(!areaStatus);
-
-                  setAreaValue({
-                    ...areaValue,
-                    isSelect: !areaValue.isSelect,
-                  });
-
-                  selectHandler({
-                    ...areaValue,
-                    isSelect: !areaStatus,
-                  });
+                  handleOtherFilterAccordion(event);
                 }}
               >
                 <div className="flex gap-2 items-center">
@@ -449,6 +370,7 @@ const LeadsTable = () => {
                 <div className="flex flex-col gap-2 p-2">
                   <select
                     id="state"
+                    name="state"
                     className="border border-gray-300 rounded"
                     value={selectedState}
                     onChange={handleStateChange}
@@ -465,6 +387,7 @@ const LeadsTable = () => {
                     <div>
                       <select
                         id="district"
+                        name="district"
                         className="border border-gray-300 rounded w-full"
                         value={selectedDistrict}
                         onChange={handleDistrictChange}
@@ -487,18 +410,10 @@ const LeadsTable = () => {
               <div>
                 <div
                   className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
-                  onClick={() => {
+                  name="referralStatus"
+                  onClick={(event) => {
                     setReferralStatus(!referralStatus);
-
-                    setReferralStatusValue({
-                      ...referralStatusValue,
-                      isSelect: !referralStatusValue.isSelect,
-                    });
-
-                    selectHandler({
-                      ...referralStatusValue,
-                      isSelect: !referralStatus,
-                    });
+                    handleOtherFilterAccordion(event);
                   }}
                 >
                   <div className="flex gap-2 items-center">
@@ -522,12 +437,8 @@ const LeadsTable = () => {
                       select Referral Status
                     </p>
                     <select
-                      onChange={(e) =>
-                        setReferralStatusValue({
-                          ...referralStatusValue,
-                          value: e.target.value,
-                        })
-                      }
+                      name="referralStatus"
+                      onChange={handleOtherFilterChange}
                       className="text-gray-600 text-sm w-full shadow-md outline-none"
                     >
                       <option value="">Select......</option>
@@ -543,18 +454,10 @@ const LeadsTable = () => {
               <div>
                 <div
                   className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
-                  onClick={() => {
+                  name="zipCode"
+                  onClick={(event) => {
                     setZipCodeStatus(!zipCodeStatus);
-
-                    setZipCodeValue({
-                      ...zipCodeValue,
-                      isSelect: !zipCodeValue.isSelect,
-                    });
-
-                    selectHandler({
-                      ...zipCodeValue,
-                      isSelect: !zipCodeStatus,
-                    });
+                    handleOtherFilterAccordion(event);
                   }}
                 >
                   <div className="flex gap-2 items-center">
@@ -575,14 +478,10 @@ const LeadsTable = () => {
                     <p className="text-xs text-gray-500">Enter Zip Code</p>
                     <input
                       type="text"
+                      name="zipCode"
                       className="focus:outline-none w-full shadow-md p-1"
-                      value={zipCodeValue.value}
-                      onChange={(e) =>
-                        setZipCodeValue({
-                          ...zipCodeValue,
-                          value: e.target.value,
-                        })
-                      }
+                      value={selectedFilter[5].value}
+                      onChange={handleOtherFilterChange}
                     />
                   </div>
                 )}
@@ -593,18 +492,10 @@ const LeadsTable = () => {
               <div>
                 <div
                   className="flex justify-between items-center p-2 cursor-pointer border border-gray-100"
-                  onClick={() => {
+                  name="newlead"
+                  onClick={(event) => {
                     setNewAddedLeadStatus(!newAddedLeadStatus);
-
-                    setNewAddedLeadValue({
-                      ...newAddedLeadValue,
-                      isSelect: !zipCodeValue.isSelect,
-                    });
-
-                    selectHandler({
-                      ...newAddedLeadValue,
-                      isSelect: !newAddedLeadStatus,
-                    });
+                    handleOtherFilterAccordion(event);
                   }}
                 >
                   <div className="flex gap-2 items-center">
@@ -625,18 +516,24 @@ const LeadsTable = () => {
                 {newAddedLeadStatus && (
                   <div className="w-full bg-gray-200  space-y-2 p-3">
                     <p className="text-xs text-gray-500">
-                      Enter New Added Lead
+                      From
                     </p>
                     <input
-                      type="text"
+                      type="date"
+                      name="addedFromDate"
                       className="focus:outline-none w-full shadow-md p-1"
-                      value={newAddedLeadValue.value}
-                      onChange={(e) =>
-                        setNewAddedLeadValue({
-                          ...newAddedLeadValue,
-                          value: e.target.value,
-                        })
-                      }
+                      value={selectedFilter[6].value}
+                      onChange={handleOtherFilterChange}
+                    />
+                    <p className="text-xs text-gray-500">
+                      To
+                    </p>
+                    <input
+                      type="date"
+                      name="addedToDate"
+                      className="focus:outline-none w-full shadow-md p-1"
+                      value={selectedFilter[7].value}
+                      onChange={handleOtherFilterChange}
                     />
                   </div>
                 )}
