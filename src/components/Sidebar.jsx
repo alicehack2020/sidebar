@@ -11,9 +11,9 @@ import reminders from "../assets/reminders.png";
 import interactions from "../assets/interactions.png";
 import leadsChanges from "../assets/leadChanges.png";
 import payments from "../assets/payments.png";
-import left from "../assets/left.png"
-import right from "../assets/right.png"
-import filter from "../assets/filter.jpg"
+import left from "../assets/left.png";
+import right from "../assets/right.png";
+import filter from "../assets/filter.jpg";
 
 const Sidebar = () => {
   const [expanded, setExpanded] = useState(false);
@@ -102,45 +102,48 @@ const Sidebar = () => {
           </div>
           <div className="flex justify-end ">
             <div
-              className="  shadow-lg w-fit my-2 cursor-pointer z-10 relative"
+              className="  shadow-lg h-5 w-6 my-2 cursor-pointer z-10 relative"
               onClick={() => setExpanded(false)}
             >
-              <img src={right} className="h-5" />
+              <img src={left} className="object-cover" />
             </div>
           </div>
         </div>
       ) : (
         <div className="py-4">
-          <div className="flex justify-center h-14 ">
+          <div className="flex justify-center h-14 p-2">
             <img src={logo} />
           </div>
           <div className="flex justify-end  ">
             <div
-              className=" shadow-lg w-fit  my-2 cursor-pointer"
+              className="w-5 h-5 shadow-lg  my-2 cursor-pointer"
               onClick={() => setExpanded(true)}
             >
-              <img src={left} className="h-5" />
+              <img src={right} className="object-cover" />
             </div>
           </div>
         </div>
       )}
 
       <div
-        className="p-2  border-t-2 border-gray-100 h-screen"
+        className="p-2 border-t-2 border-gray-100 h-screen shadow-2xl"
         onMouseEnter={() => handleMouseEnter()}
         onMouseLeave={handleMouseLeave}
       >
         {items.map((item) => (
-          <div className="flex justify-between  items-center my-2 hover:bg-blue-50 rounded-lg text-gray-600 hover:text-blue-500  cursor-pointer">
+          <div className="flex justify-between  items-center mb-2 hover:bg-blue-50 rounded-lg text-gray-600 hover:text-blue-500  cursor-pointer">
             <div
               key={item.id}
               className="flex items-center p-2 space-x-4 text-sm  font-medium  cursor-pointer hover:font-semibold"
             >
-              <img
-                src={item.image}
-                alt={item.text}
-                className="w-5 object-cover cursor-pointer"
-              />
+              <div className="w-5 h-5">
+                <img
+                  src={item.image}
+                  alt={item.text}
+                  className="object-contain h-full w-full cursor-pointer"
+                />
+              </div>
+
               {expanded && <p>{item.text}</p>}
             </div>
             {item.sub && expanded ? (
